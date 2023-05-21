@@ -1,0 +1,168 @@
+<html>
+<head>
+    <title>二维码生成器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            color: #333333;
+            margin-top: 40px; /*增加标题的上边距*/
+            font-size: 36px; /*增加标题的字体大小*/
+        }
+
+        input {
+            width: 300px;
+            height: 40px;
+            border: 1px solid #cccccc;
+            padding: 10px;
+            font-size: 18px;
+        }
+
+        button {
+            width: 100px;
+            height: 40px;
+            background-color: #3399ff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .qrcode-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+        }
+
+        img {
+            margin-top: 20px;
+        }
+
+        .download-link {
+            display: none; /*默认隐藏下载链接*/
+        }
+
+        .hint {
+            font-size: 16px; /*设置扫描提示的字体大小*/
+            color: #333333; /*设置扫描提示的字体颜色*/
+        }
+
+        /*添加一些美化样式*/
+        input:focus {
+            outline: none; /*去掉输入框的默认边框*/
+            border-color: #3399ff; /*设置输入框的边框颜色为蓝色*/
+        }
+
+        button:hover {
+            background-color: #33ccff; /*设置按钮的背景颜色为浅蓝色*/
+        }
+
+        button:focus {
+            outline: none; /*去掉按钮的默认边框*/
+        }
+
+		/*添加一些动画效果*/
+		@keyframes bounce { /*定义一个弹跳动画*/
+			0%, 100% { transform: translateY(0); }
+			50% { transform: translateY(-10px); }
+		}
+
+		@keyframes fade-in { /*定义一个淡入动画*/
+			from { opacity: 0; }
+			to { opacity: 1; }
+		}
+
+		h1 { /*给标题添加一个弹跳动画*/
+			animation-name: bounce;
+			animation-duration: 1s;
+			animation-timing-function: ease-in-out;
+			animation-fill-mode: both;
+		}
+
+		input, button { /*给输入框和按钮添加一个淡入动画*/
+			animation-name: fade-in;
+			animation-duration: 1s;
+			animation-timing-function: ease-in-out;
+			animation-fill-mode:both;
+			animation-delay:.5s; /*延迟半秒开始动画*/
+		}
+
+		img { /*给二维码图片添加一个淡入动画*/
+			animation-name: fade-in;
+			animation-duration:.5s;
+			animation-timing-function:ease-in-out;
+			animation-fill-mode:both
+		}
+
+    </style>
+    <script src="qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>二维码生成器</h1>
+        <p>请输入要生成二维码的内容：</p>
+        <input id="text" type="text" placeholder="例如：QH的博客" />
+        <button id="button" onclick="generate()">生成</button>
+        <div class="qrcode-wrapper">
+            <div id="qrcode"></div>
+        </div>
+        
+    </div>
+    <script>
+        var qrcode = null; //定义一个全局变量，用来存储生成的二维码对象
+
+        function generate() {
+            var text = document.getElementById("text").value; //获取输入框的内容
+            if (text) { //如果内容不为空
+                if (qrcode) { //如果已经生成过二维码
+                    qrcode.clear(); //清除原来的二维码
+                    qrcode.makeCode(text); //用新的内容生成新的二维码
+                } else { //如果还没有生成过二维码
+                    qrcode = new QRCode(document.getElementById("qrcode"), { //创建一个新的二维码对象，并赋值给全局变量
+                        text: text,
+                        width: 200,
+                        height: 200,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H
+                    });
+                }
+                document.getElementById("text").value = ""; //清空输入框的内容
+                document.getElementById("text").focus(); //让输入框获得焦点，方便输入新的内容
+                showDownloadLink(); //调用显示下载链接的函数
+     } else { //如果内容为空
+                alert("请输入内容"); //弹出提示框
+            }
+        }
+		function showDownloadLink() { //定义一个显示下载链接的函数
+			var downloadLink = document.getElementById("download-link"); //获取已有的下载链接元素，如果没有则返回null
+			if (downloadLink) { //如果存在下载链接元素
+				downloadLink.remove(); //删除该元素
+			}
+			downloadLink = document.createElement("a"); //创建一个新的a元素，作为下载链接
+			downloadLink.id = "download-link"; //设置下载链接的id属性，方便后面获取和修改
+			downloadLink.href = qrcode._oDrawing._elCanvas.toDataURL(); //设置下载链接的地址为二维码图片的数据
+			downloadLink.download = "qrcode.png"; //设置下载链接的下载属性，指定文件名为qrcode.png
+			downloadLink.textContent = "下载二维码"; //设置下载链接的文本内容为“下载二维码”
+			document.body.appendChild(downloadLink); //将下载链接添加到文档中，作为body元素的子元素
+		}
+
+    </script>
+</body>
+</html>
